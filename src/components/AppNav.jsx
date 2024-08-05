@@ -5,6 +5,8 @@ export default function AppNav() {
   return (
     <nav className={styles.nav}>
       <ul className={styles.ul}>
+        {/* see lec from 212 */}
+
         <li>
           <NavLink to="cities">Cities</NavLink>
         </li>
