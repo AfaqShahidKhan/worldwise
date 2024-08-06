@@ -16,4 +16,3 @@ export default function CityList() {
     </ul>
   );
 }
-// start from  229
