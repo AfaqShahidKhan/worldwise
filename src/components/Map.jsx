@@ -9,29 +9,48 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { useCities } from "../contexts/CitiesContext";
+import Button from "./Button";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Spinner from "./Spinner";
-import { latLng } from "leaflet";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { useUrlPosition } from "../hooks/useUrlPosition";
 
 export default function Map() {
-  const { cities } = useCities();
-  const [searchParams] = useSearchParams();
+  const { cities } = useCities() || { cities: [] };
+  const {
+    isLoading: isLoadingPosition,
+    position: geoLocationPosition,
+    getLocation,
+  } = useGeolocation();
   const [mapPosition, setMapPosition] = useState([40, 0]);
-  const mapLat = searchParams.get("lat");
-  const mapLng = searchParams.get("lng");
+  const[ mapLat, mapLng] = useUrlPosition()
   useEffect(
     function () {
-      if (mapLat && mapLng) setMapPosition([mapLat, mapLng]);
+      if (!isNaN(mapLat) && !isNaN(mapLng)) setMapPosition([mapLat, mapLng]);
     },
     [mapLat, mapLng]
   );
+
+  useEffect(
+    function () {
+      if (geoLocationPosition)
+        setMapPosition([geoLocationPosition.lat, geoLocationPosition.lng]);
+    },
+    [geoLocationPosition]
+  );
+
   // Only render the MapContainer when mapLat and mapLng are available and valid
-  if (!mapLat || !mapLng || isNaN(mapLat) || isNaN(mapLng)) {
+  if (isNaN(mapLat) || isNaN(mapLng)) {
     return <Spinner />;
   }
 
   return (
     <div className={styles.mapContainer}>
+      {!geoLocationPosition && (
+        <Button type="position" onClick={getLocation}>
+          {isLoadingPosition ? "Loading..." : "Use your position"}
+        </Button>
+      )}
       <MapContainer
         center={mapPosition}
         zoom={13}
@@ -59,6 +78,7 @@ export default function Map() {
     </div>
   );
 }
+
 function ChangeCenter({ position }) {
   const map = useMap();
   map.setView(position);
@@ -69,6 +89,7 @@ function DetectClick() {
   const navigate = useNavigate();
 
   useMapEvents({
-    click: (e) => navigate(`form?lat=${e.latlng.lat}&lng=${e.latLng.lng}`),
+    click: (e) => navigate(`form?lat=${e.latlng.lat}&lng=${e.latlng.lng}`),
   });
+  return null;
 }
