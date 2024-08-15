@@ -10,7 +10,7 @@ import {
 } from "react-leaflet";
 import { useCities } from "../contexts/CitiesContext";
 import Button from "./Button";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Spinner from "./Spinner";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useUrlPosition } from "../hooks/useUrlPosition";
